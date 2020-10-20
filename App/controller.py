@@ -24,6 +24,9 @@ import config as cf
 from App import model
 import datetime
 import csv
+from DISClib.DataStructures import listiterator as it
+from DISClib.ADT import orderedmap as om
+
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -42,8 +45,8 @@ def init():
     """
     Llama la funcion de inicializacion del modelo.
     """
-
-    return None
+    lista_acc=model.New_list()
+    return lista_acc
 
 
 # ___________________________________________________
@@ -51,13 +54,37 @@ def init():
 #  de datos en los modelos
 # ___________________________________________________
 
-def loadData(analyzer, accidentsfile):
+def loadData(accidentes, Archivo):
     """
     Carga los datos de los archivos CSV en el modelo
     """
+    Archivo = cf.data_dir + Archivo
+    input_file = csv.DictReader(open(Archivo, encoding="utf-8"),
+                                delimiter=",")
+    for Accidente in input_file:
+        model.añadirAccidente(accidentes, Accidente)
+    return accidentes
     
-    return analyzer
-
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________
+
+def sizeArbol(lista_acc):
+    size=model.size_Arbol(lista_acc)
+    return size
+
+def Dar_cantidad_por_fecha(accidentes,Fecha):
+    initialDate = datetime.datetime.strptime(Fecha, '%Y-%m-%d')
+    size,lista= model.Accidente_Fecha_severidad(accidentes,initialDate.date())
+    return size,lista
+
+def Dar_cantidad_fecha_adelante(accidentes,Fecha):
+    initialDate = datetime.datetime.strptime(Fecha, '%Y-%m-%d')
+    fecha1=om.minKey(accidentes["Fechas"])
+    finalDate = datetime.datetime.strptime(fecha1, '%Y-%m-%d')
+    size,lista= model.rango_accidentes_severidad(accidentes,finalDate,initialDate.date())
+    return size,lista
+
+def sizeAccidentes(accidentes):
+    size=model.tamaño_Accidentes(accidentes)
+    return size

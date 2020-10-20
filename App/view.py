@@ -23,6 +23,8 @@
 import sys
 import config
 from App import controller
+from DISClib.ADT import list as lt
+from DISClib.DataStructures import listiterator as it
 assert config
 
 """
@@ -37,7 +39,7 @@ operación seleccionada.
 # ___________________________________________________
 
 
-crimefile = 'crime-utf8.csv'
+Archivo = 'us_accidents_small.csv'
 
 # ___________________________________________________
 #  Menu principal
@@ -66,16 +68,34 @@ while True:
     if int(inputs[0]) == 1:
         print("\nInicializando....")
         # cont es el controlador que se usará de acá en adelante
-        cont = controller.init()
+        accidentes= controller.init()
 
     elif int(inputs[0]) == 2:
         print("\nCargando información de crimenes ....")
+        controller.loadData(accidentes,Archivo)
+        print('Accidentes cargados: ' + str(controller.sizeAccidentes(accidentes)))
+        print('Fechas cargadas: ' + str(controller.sizeArbol(accidentes)),"\n")
 
     elif int(inputs[0]) == 3:
-        print("\nBuscando crimenes en un rango de fechas: ")
+        Fecha=input('Ingrese la fecha de busqueda (YYYY-MM-DD)\n>: ')
+        print("\nBuscando accidentes en la fecha... ")
+        tamaño,lista=controller.Dar_cantidad_por_fecha(accidentes,Fecha)
+        print("\nSe encontraron",tamaño,"accidentes registrados en la fecha",Fecha)
+        iterador=it.newIterator(lista)
+        while it.hasNext(iterador):
+            element=it.next(iterador)
+            Severidad=element["Severidad"]
+            size=lt.size(element["Lista_Accidentes"])
+            print("Hay ",size," accidentes de saveridad: ",Severidad)
+        
 
     elif int(inputs[0]) == 4:
-        print("\nRequerimiento No 1 del reto 3: ")
+        print("\nAccidentes desde una fecha: ")
+        Fecha=input("Ingrese la fecha desde la que quiere conocer los accidentes (YYYY-MM-DD): ")
+        print("Buscando accidentes...")
+        
+        tamaño,lista=controller.Dar_cantidad_fecha_adelante(accidentes,Fecha)
+        print("\nSe encontraron",tamaño,"accidentes registrados desde ",Fecha)
 
     else:
         sys.exit(0)
