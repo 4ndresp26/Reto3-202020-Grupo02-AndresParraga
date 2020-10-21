@@ -86,14 +86,13 @@ while True:
             element=it.next(iterador)
             Severidad=element["Severidad"]
             size=lt.size(element["Lista_Accidentes"])
-            print("Hay ",size," accidentes de saveridad: ",Severidad)
+            print("Hay", size, " acccidentes reportados con severidad: ",Severidad)
         
 
     elif int(inputs[0]) == 4:
-        print("\nAccidentes desde una fecha: ")
+        print("\nAccidentes antes de una fecha: ")
         Fecha=input("Ingrese la fecha desde la que quiere conocer los accidentes (YYYY-MM-DD): ")
         print("Buscando accidentes...")
-        
         tamaño,lista=controller.Dar_cantidad_fecha_adelante(accidentes,Fecha)
         print("\nSe encontraron",tamaño,"accidentes registrados desde ",Fecha)
 

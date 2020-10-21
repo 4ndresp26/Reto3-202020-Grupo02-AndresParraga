@@ -40,32 +40,38 @@ es decir contiene los modelos con los datos en memoria
 
 # Funciones para agregar informacion al catalogo
 def New_list():
-    lista={"Fechas":None,"Accidentes":None, "Horas":None}
+    lista={"Accidentes":None,"Fechas":None, "Horas":None}
     lista['Accidentes'] = lt.newList('SINGLE_LINKED', compareAccidentes)
-    lista['Fechas'] = om.newMap(omaptype='BST',
+    lista['Fechas'] = om.newMap(omaptype='RBT',
                                       comparefunction=compararFechas)
-    lista['Horas'] = om.newMap(omaptype='BST',
+    lista['Horas'] = om.newMap(omaptype='RBT',
                                       comparefunction=compararHoras)
     return lista
 
-def añadirAccidente(lista,Archivo):
-    lt.addLast(lista["Accidentes"],Archivo)
-    AñadirAccidenteFecha(lista,Archivo)
+
+
+def añadirAccidente(lista,Accidente):
+    lt.addLast(lista["Accidentes"],Accidente)
+    AñadirAccidenteFecha(lista["Fechas"],Accidente)
     return lista
+
+
 
 def AñadirAccidenteFecha(lista,Accidente):
     Fecha = Accidente['Start_Time']
     Fecha_accidente = datetime.datetime.strptime(Fecha, '%Y-%m-%d %H:%M:%S')
-    entry = om.get(lista["Fechas"], Fecha_accidente.date())
+    entry = om.get(lista, Fecha_accidente.date())
     if entry is None:
-        datentry = newDataEntry()
-        om.put(lista["Fechas"], Fecha_accidente.date(), datentry)
+        datentry = newDataEntry(Accidente)
+        om.put(lista, Fecha_accidente.date(), datentry)
     else:
         datentry = me.getValue(entry)
     Añadir_Accidente_Tipo(datentry, Accidente)
+    return lista
+
     
 
-def newDataEntry():
+def newDataEntry(Accidente):
     
     entry = {'Severidades': None, 'Accidentes': None}
     entry['Severidades'] = m.newMap(numelements=11,
@@ -76,14 +82,14 @@ def newDataEntry():
 
 def Añadir_Accidente_Tipo(datentry,Accidente):
 
-    Severidad_Accidentes=datentry["Severidades"]
-    Lista_Acci=datentry["Accidentes"]
-    lt.addLast(Lista_Acci,Accidente)
-    Seventry= m.get(Severidad_Accidentes,Accidente["Severity"])
+    Severidad_Accidentes=datentry["Accidentes"]
+    Lista_Acci=datentry["Severidades"]
+    lt.addLast(Severidad_Accidentes,Accidente)
+    Seventry= m.get(Lista_Acci,Accidente["Severity"])
     if Seventry == None:
         Entry= NuevaSeveridad(Accidente["Severity"])
         lt.addLast(Entry["Lista_Accidentes"],Accidente)
-        m.put(Severidad_Accidentes,Accidente["Severity"],Entry)
+        m.put(Lista_Acci,Accidente["Severity"],Entry)
     else:
         Entry= me.getValue(Seventry)
         lt.addLast(Entry["Lista_Accidentes"],Accidente)
@@ -115,12 +121,30 @@ def Accidente_Fecha_severidad(accidentes,fecha):
             lt.addLast(lista,valor)  
     return cantidad_Accidentes,lista
 
-def rango_accidentes_severidad(accidentes,fecha1,fecha2):
-    lista= lt.newList("ARRAY_LIST")
-    li=om.values(accidentes["Fechas",fecha1,fecha2])
-    print(li)
-    return lista
+def rango_accidentes_severidad(accidentes,initialDate,finalDate):
+
+    lst = om.values(accidentes['Fechas'], initialDate, finalDate)
+    lstiterator = it.newIterator(lst)
+    totacc = 0
+    while (it.hasNext(lstiterator)):
+        lstdate = it.next(lstiterator)
+        totacc += lt.size(lstdate['Accidentes'])
+    return totacc
+    it.newIterator(lst)
+def dia_crimenes(accidentes, initialDate, offensecode):
     
+    crimedate = om.get(accidentes['Fechas'], initialDate)
+    if crimedate['key'] is not None:
+        offensemap = me.getValue(crimedate)['Severidad']
+        numoffenses = m.get(offensemap, offensecode)
+        if numoffenses is not None:
+            return m.size(me.getValue(numoffenses)['Lista_Accidentes'])
+        return 0    
+
+def rango_accidente_hora(accidentes,inicial,final):
+    return None
+
+
 def size_Arbol(accidentes):
 
     size = om.size(accidentes["Fechas"])
