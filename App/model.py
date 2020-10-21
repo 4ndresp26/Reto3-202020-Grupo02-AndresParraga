@@ -122,7 +122,7 @@ def Accidente_Fecha_severidad(accidentes,fecha):
     return cantidad_Accidentes,lista
 
 def rango_accidentes_severidad(accidentes,initialDate,finalDate):
-
+    print(initialDate,finalDate)
     lst = om.values(accidentes['Fechas'], initialDate, finalDate)
     lstiterator = it.newIterator(lst)
     totacc = 0
@@ -130,7 +130,8 @@ def rango_accidentes_severidad(accidentes,initialDate,finalDate):
         lstdate = it.next(lstiterator)
         totacc += lt.size(lstdate['Accidentes'])
     return totacc
-    it.newIterator(lst)
+    
+
 def dia_crimenes(accidentes, initialDate, offensecode):
     
     crimedate = om.get(accidentes['Fechas'], initialDate)
@@ -158,7 +159,7 @@ def tamaño_Accidentes(catalog):
 # Funciones de Comparacion
 # ==============================
 def compararFechas(Fecha1, Fecha2):
-
+    print(Fecha1, Fecha2)
     if (Fecha1 == Fecha2):
         return 0
     elif (Fecha1 > Fecha2):
@@ -168,9 +169,9 @@ def compararFechas(Fecha1, Fecha2):
 
 def compararHoras(Hora1, Hora2):
     
-    if (Hora1 == Hora2):
+    if (Hora1 == Hora2.date()):
         return 0
-    elif (Hora1 > Hora2):
+    elif (Hora1 > Hora2.date()):
         return 1
     else:
         return -1

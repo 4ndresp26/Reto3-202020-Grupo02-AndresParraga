@@ -80,14 +80,15 @@ def Dar_cantidad_por_fecha(accidentes,Fecha):
 
 def Dar_cantidad_fecha_adelante(accidentes,Fecha):
     initialDate = datetime.datetime.strptime(Fecha, '%Y-%m-%d')
-    finalDate=om.minKey(accidentes["Fechas"])
-    lista= model.rango_accidentes_severidad(accidentes,finalDate,initialDate.date())
+    finalDate = datetime.datetime.strptime(str(om.minKey(accidentes["Fechas"])), '%Y-%m-%d')
+    lista= model.rango_accidentes_severidad(accidentes,finalDate,
+                                        initialDate.date())
     return lista
 
 def rango_horas(accidentes,inicial,final):
     inicial = datetime.datetime.strptime(inicial, '%H:%M')
     final = datetime.datetime.strptime(final, '%H:%M')
-    lista= model.rango_accidentes_hora(accidentes,inicial.date(),final.date())
+    lista= model.rango_accidentes_hora(accidentes,inicial,final.date())
     return lista
     
 def sizeAccidentes(accidentes):
