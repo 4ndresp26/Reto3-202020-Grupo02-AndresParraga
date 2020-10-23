@@ -25,6 +25,7 @@ import config
 from App import controller
 from DISClib.ADT import list as lt
 from DISClib.DataStructures import listiterator as it
+import datetime
 assert config
 
 """
@@ -52,8 +53,9 @@ def printMenu():
     print("Bienvenido")
     print("1- Inicializar Analizador")
     print("2- Cargar información de accidentes")
-    print("3- Requerimento 1")
-    print("4- Requerimento 2")
+    print("3- Accidentes en un dia.")
+    print("4- Accidentes entre rango de fechas.")
+    print("5- Horas entre fechas")
     print("0- Salir")
     print("*******************************************")
 
@@ -91,10 +93,28 @@ while True:
 
     elif int(inputs[0]) == 4:
         print("\nAccidentes antes de una fecha: ")
-        Fecha=input("Ingrese la fecha desde la que quiere conocer los accidentes (YYYY-MM-DD): ")
+        Fecha=input("Ingrese la fecha hasta la que quiere conocer los accidentes (YYYY-MM-DD): ")
         print("Buscando accidentes...")
-        tamaño,lista=controller.Dar_cantidad_fecha_adelante(accidentes,Fecha)
-        print("\nSe encontraron",tamaño,"accidentes registrados desde ",Fecha)
+        tamaño,lista=(controller.Dar_cantidad_fecha_adelante(accidentes,Fecha))
+        print(lista)
+        acc=max(lista.values())
+        for i in lista:
+            if lista[i]==acc:
+                fecha_acc=i
+                print("\nSe encontraron",tamaño,"accidentes registrados antes ",Fecha)
+                print("La fecha con mas accidentes fue",i, "con ",acc,"accidentes.")
+
+    elif int(inputs[0]) == 5:
+        print("\Accidentes entre horas.")
+        Hora_inicial=input("Ingrese la hora desde la que quiere conocer los accidentes (HH:MM): ")
+        Hora_final=input("Ingrese la hora hasta la que quiere conocer los accidentes (HH:MM): ")
+        num_acc,lista=controller.rango_horas(accidentes,Hora_inicial,Hora_final)
+        print("Los accidentes entre las horas", Hora_inicial,"y", Hora_final, " son : ", num_acc)
+        claves = list(lista.keys())
+        valores = list(lista.values())
+        for sev in range(0,len(lista)):
+            print("los accidentes con severidad",claves[sev], "son : ",valores[sev],". Y representa un ",int(valores[sev])*100/num_acc,"% de los accidentes registrados.")
+        print("los accidentes regisrados entre",Hora_inicial,"y",Hora_final, "representan un ",round(num_acc*100/int(controller.sizeAccidentes(accidentes)),2),"% de los accidentes registrados.")
 
     else:
         sys.exit(0)

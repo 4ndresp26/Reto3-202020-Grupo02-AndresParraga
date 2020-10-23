@@ -26,6 +26,7 @@ from DISClib.DataStructures import mapentry as me
 from DISClib.ADT import map as m
 from DISClib.DataStructures import listiterator as it
 import datetime
+from DISClib.DataStructures import arraylist as arr
 assert config
 
 """
@@ -53,6 +54,7 @@ def New_list():
 def añadirAccidente(lista,Accidente):
     lt.addLast(lista["Accidentes"],Accidente)
     AñadirAccidenteFecha(lista["Fechas"],Accidente)
+    AñadirAccidenteHora(lista["Horas"],Accidente)
     return lista
 
 
@@ -69,7 +71,18 @@ def AñadirAccidenteFecha(lista,Accidente):
     Añadir_Accidente_Tipo(datentry, Accidente)
     return lista
 
-    
+def AñadirAccidenteHora(lista,Accidente):
+    Fecha = Accidente['Start_Time']
+    Fecha_accidente = datetime.datetime.strptime(Fecha, '%Y-%m-%d %H:%M:%S')
+    entry = om.get(lista, Fecha_accidente.time())
+    if entry is None:
+        datentry = newDataEntry(Accidente)
+        om.put(lista, Fecha_accidente.time(), datentry)
+    else:
+        datentry = me.getValue(entry)
+    Añadir_Accidente_Tipo(datentry, Accidente)
+    return lista
+
 
 def newDataEntry(Accidente):
     
@@ -122,16 +135,16 @@ def Accidente_Fecha_severidad(accidentes,fecha):
     return cantidad_Accidentes,lista
 
 def rango_accidentes_severidad(accidentes,initialDate,finalDate):
-    print(initialDate,finalDate)
-    lst = om.values(accidentes['Fechas'], initialDate, finalDate)
+    lst = om.values(accidentes['Fechas'], initialDate.date(), finalDate)
     lstiterator = it.newIterator(lst)
     totacc = 0
+    lista={}
     while (it.hasNext(lstiterator)):
         lstdate = it.next(lstiterator)
-        totacc += lt.size(lstdate['Accidentes'])
-    return totacc
+        lista[lstdate['Accidentes']["first"]["info"]['Start_Time']]=lt.size(lstdate['Accidentes'])
+        totacc += lt.size(lstdate['Accidentes'])   
+    return totacc, lista
     
-
 def dia_crimenes(accidentes, initialDate, offensecode):
     
     crimedate = om.get(accidentes['Fechas'], initialDate)
@@ -142,15 +155,27 @@ def dia_crimenes(accidentes, initialDate, offensecode):
             return m.size(me.getValue(numoffenses)['Lista_Accidentes'])
         return 0    
 
-def rango_accidente_hora(accidentes,inicial,final):
-    return None
-
+def rango_accidente_hora(accidentes,initialDate,finalDate):
+    
+    lst = om.values(accidentes['Horas'], initialDate.time(), finalDate)
+    lstiterator = it.newIterator(lst)
+    fe={}
+    totacc = 0
+    while (it.hasNext(lstiterator)):
+        lstdate = it.next(lstiterator)
+        totacc += lt.size(lstdate['Accidentes'])
+        if lstdate['Accidentes']["first"]["info"]["Severity"] not in fe:
+            fe[(lstdate['Accidentes']["first"]["info"]["Severity"])]=1
+        else:
+            fe[(lstdate['Accidentes']["first"]["info"]["Severity"])]=fe[(lstdate['Accidentes']["first"]["info"]["Severity"])]+1
+    return totacc,fe
+    
 
 def size_Arbol(accidentes):
 
     size = om.size(accidentes["Fechas"])
     return size
-    lst = om.values(accidentes['dateIndex'], initialDate, finalDate,)
+    lst = om.values(accidentes['Fechas'], initialDate, finalDate,)
 
 def tamaño_Accidentes(catalog):
     size= lt.size(catalog["Accidentes"])
@@ -159,7 +184,6 @@ def tamaño_Accidentes(catalog):
 # Funciones de Comparacion
 # ==============================
 def compararFechas(Fecha1, Fecha2):
-    print(Fecha1, Fecha2)
     if (Fecha1 == Fecha2):
         return 0
     elif (Fecha1 > Fecha2):
@@ -169,9 +193,9 @@ def compararFechas(Fecha1, Fecha2):
 
 def compararHoras(Hora1, Hora2):
     
-    if (Hora1 == Hora2.date()):
+    if (Hora1 == Hora2):
         return 0
-    elif (Hora1 > Hora2.date()):
+    elif (Hora1 > Hora2):
         return 1
     else:
         return -1
